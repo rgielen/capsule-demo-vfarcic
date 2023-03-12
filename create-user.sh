@@ -51,7 +51,7 @@ kubectl delete csr ${USER}-${TENANT} 2>/dev/null || true
 
 # Create a new CSR file.
 cat <<EOF > ${TMPDIR}/${USER}-${TENANT}-csr.yaml
-apiVersion: certificates.k8s.io/v1beta1
+apiVersion: certificates.k8s.io/v1
 kind: CertificateSigningRequest
 metadata:
   name: ${USER}-${TENANT}
@@ -59,6 +59,7 @@ spec:
   groups:
   - system:authenticated
   request: $(cat ${TMPDIR}/${USER}-${TENANT}.csr | base64 | tr -d '\n')
+  signerName: kubernetes.io/kube-apiserver-client
   usages:
   - digital signature
   - key encipherment
