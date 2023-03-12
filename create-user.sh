@@ -25,20 +25,24 @@ if [[ ! -x "$(command -v base64)" ]]; then
     exit 1
 fi
 
+USAGE="Usage: $(basename "$0") <user> <tenant> [group]"
+
 USER=$1
 TENANT=$2
 
 if [[ -z ${USER} ]]; then
     echo "User has not been specified!"
+    echo "$USAGE"
     exit 1
 fi
 
 if [[ -z ${TENANT} ]]; then
     echo "Tenant has not been specified!"
+    echo "$USAGE"
     exit 1
 fi
 
-GROUP=capsule.clastix.io
+GROUP=${3:-"capsule.clastix.io"}
 
 TMPDIR=$(mktemp -d)
 echo "creating certs in TMPDIR ${TMPDIR} "
