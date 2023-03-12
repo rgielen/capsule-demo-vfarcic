@@ -19,6 +19,12 @@ if [[ ! -x "$(command -v kubectl)" ]]; then
     exit 1
 fi
 
+# Check if base64 is installed
+if [[ ! -x "$(command -v base64)" ]]; then
+    echo "Error: base64 not found"
+    exit 1
+fi
+
 USER=$1
 TENANT=$2
 
@@ -90,8 +96,8 @@ preferences: {}
 users:
 - name: ${USER}
   user:
-    client-certificate: ${USER}-${TENANT}.crt
-    client-key: ${USER}-${TENANT}.key
+    client-certificate: $(base64 < ${USER}-${TENANT}.crt)
+    client-key: $(base64 < ${USER}-${TENANT}.key)
 EOF
 
 echo "kubeconfig file is:" ${USER}-${TENANT}.kubeconfig
