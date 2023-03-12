@@ -25,10 +25,12 @@ if [[ ! -x "$(command -v base64)" ]]; then
     exit 1
 fi
 
-USAGE="Usage: $(basename "$0") <user> <tenant> [group]"
+USAGE="Usage: $(basename "$0") <user> [tenant] [group]"
+
+CONTEXT=$(kubectl config current-context)
+CLUSTER=$(kubectl config view -o jsonpath="{.contexts[?(@.name == \"$CONTEXT\"})].context.cluster}")
 
 USER=$1
-TENANT=$2
 
 if [[ -z ${USER} ]]; then
     echo "User has not been specified!"
@@ -36,13 +38,15 @@ if [[ -z ${USER} ]]; then
     exit 1
 fi
 
-if [[ -z ${TENANT} ]]; then
-    echo "Tenant has not been specified!"
-    echo "$USAGE"
-    exit 1
+TENANT=${2:-${CLUSTER}}
+if [[ -z $2 ]]; then
+    echo "Tenant has not been specified, using ${TENANT}"
 fi
 
 GROUP=${3:-"capsule.clastix.io"}
+if [[ -z $3 ]]; then
+    echo "Group has not been specified, using ${GROUP}"
+fi
 
 TMPDIR=$(mktemp -d)
 echo "creating certs in TMPDIR ${TMPDIR} "
@@ -78,8 +82,6 @@ kubectl certificate approve ${USER}-${TENANT}
 kubectl get csr ${USER}-${TENANT} -o jsonpath='{.status.certificate}' | base64 --decode > ${USER}-${TENANT}.crt
 
 # Create the kubeconfig file
-CONTEXT=$(kubectl config current-context)
-CLUSTER=$(kubectl config view -o jsonpath="{.contexts[?(@.name == \"$CONTEXT\"})].context.cluster}")
 SERVER=$(kubectl config view -o jsonpath="{.clusters[?(@.name == \"${CLUSTER}\"})].cluster.server}")
 CA=$(kubectl config view --flatten -o jsonpath="{.clusters[?(@.name == \"${CLUSTER}\"})].cluster.certificate-authority-data}")
 
