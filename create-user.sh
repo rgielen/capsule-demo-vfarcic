@@ -103,8 +103,8 @@ preferences: {}
 users:
 - name: ${USER}
   user:
-    client-certificate: $(base64 < ${USER}-${TENANT}.crt)
-    client-key: $(base64 < ${USER}-${TENANT}.key)
+    client-certificate-data: $(base64 < ${USER}-${TENANT}.crt)
+    client-key-data: $(base64 < ${USER}-${TENANT}.key)
 EOF
 
 echo "kubeconfig file is:" ${USER}-${TENANT}.kubeconfig
